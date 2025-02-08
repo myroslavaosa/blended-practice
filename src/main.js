@@ -16,8 +16,8 @@
 // Клік по кнопці logout повертає все до початкового вигляду і видаляє дані користувача
 // з локального сховища.
 
-import { stringify } from "postcss";
-import { refs } from "./js/refs";
+import { refs } from './js/refs';
+import { get, save } from './js/storage';
 
 const USER_DATA = {
   email: 'user@mail.com',
@@ -26,21 +26,33 @@ const USER_DATA = {
 
 const LS_KEY = 'userdata';
 
-refs.form.addEventListener('submit', (e) => {
+refs.form.addEventListener('submit', e => {
   e.preventDefault();
   const emailInput = refs.emailInfo.value.trim();
   const passwordInput = refs.passwordInfo.value.trim();
-  if (emailInput === "" || passwordInput === "") {
+  if (emailInput === '' || passwordInput === '') {
     alert('Pls put something it!');
     return;
   }
   if (emailInput !== USER_DATA.email || passwordInput !== USER_DATA.password) {
-        alert('Wrong password or email!')
+    alert('Wrong password or email!');
     return;
   }
-  localStorage.setItem(LS_KEY, JSON.stringify({ email: emailInput, password: passwordInput }))
+  save(LS_KEY, {
+    email: emailInput,
+    password: passwordInput,
+  });
   refs.btn.textContent = 'Logout';
   refs.emailInfo.setAttribute('readonly', true);
   refs.passwordInfo.setAttribute('readonly', true);
+});
 
-})
+const parseData = get(LS_KEY);
+if (parseData) {
+  refs.emailInfo.value = parseData.email || '';
+  refs.passwordInfo.value = parseData.password || '';
+
+  refs.emailInfo.setAttribute('readonly', true);
+  refs.passwordInfo.setAttribute('readonly', true);
+  refs.btn.textContent = 'Logout';
+}
