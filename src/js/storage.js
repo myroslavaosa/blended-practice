@@ -9,3 +9,7 @@ export const get = key => {
     return parseData;
   }
 };
+
+export const remove = key => {
+  localStorage.removeItem(key);
+};

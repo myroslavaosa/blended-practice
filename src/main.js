@@ -16,8 +16,11 @@
 // Клік по кнопці logout повертає все до початкового вигляду і видаляє дані користувача
 // з локального сховища.
 
+import icon from './img/javascript.svg'
+import 'izitoast/dist/css/iziToast.min.css';
+import iziToast from 'izitoast';
 import { refs } from './js/refs';
-import { get, save } from './js/storage';
+import { get, remove, save } from './js/storage';
 
 const USER_DATA = {
   email: 'user@mail.com',
@@ -28,14 +31,29 @@ const LS_KEY = 'userdata';
 
 refs.form.addEventListener('submit', e => {
   e.preventDefault();
+  if(refs.btn.textContent === 'Logout') {
+    remove(LS_KEY);
+    refs.form.reset();
+    refs.emailInfo.removeAttribute('readonly');
+    refs.passwordInfo.removeAttribute('readonly');
+    refs.btn.textContent = 'Login';
+    return;
+  }
   const emailInput = refs.emailInfo.value.trim();
   const passwordInput = refs.passwordInfo.value.trim();
   if (emailInput === '' || passwordInput === '') {
-    alert('Pls put something it!');
+    iziToast.warning({
+      iconUrl: icon,
+      title: 'Caution',
+      message: 'Pls put something it!',
+  });
     return;
   }
   if (emailInput !== USER_DATA.email || passwordInput !== USER_DATA.password) {
-    alert('Wrong password or email!');
+    iziToast.error({
+      title: 'Error',
+      message: 'Wrong password or email!',
+  });
     return;
   }
   save(LS_KEY, {
@@ -45,6 +63,8 @@ refs.form.addEventListener('submit', e => {
   refs.btn.textContent = 'Logout';
   refs.emailInfo.setAttribute('readonly', true);
   refs.passwordInfo.setAttribute('readonly', true);
+
+  
 });
 
 const parseData = get(LS_KEY);
@@ -56,3 +76,4 @@ if (parseData) {
   refs.passwordInfo.setAttribute('readonly', true);
   refs.btn.textContent = 'Logout';
 }
+
