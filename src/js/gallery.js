@@ -19,6 +19,7 @@ import 'tui-pagination/dist/tui-pagination.min.css';
 const gallery = document.querySelector('.gallery');
 const form = document.querySelector('.search-form');
 const input = document.querySelector('[name="query"]');
+const loader = document.querySelector(".loader");
 
 const container = document.getElementById('tui-pagination-container');
 const pagination = new Pagination(container, {
@@ -41,27 +42,33 @@ api.getPopularPhotos(page).then(response => {
 function getPopular(event) {
   const currentPage = event.page;
   api.getPopularPhotos(currentPage).then(response => {
-  const markup = createGalleryCard(response.results);
-  gallery.innerHTML = markup;
-  console.log(response);
-});
+    const markup = createGalleryCard(response.results);
+    gallery.innerHTML = markup;
+    console.log(response);
+  });
 }
-function getByQuery(e){
+function getByQuery(e) {
   const currentPage = e.page;
+  loader.classList.remove("is-hidden");
   api.getPhotosByQuery(currentPage).then(response => {
-  const markup = createGalleryCard(response.results);
-  gallery.innerHTML = markup;
-  console.log(response);
-})
+    const markup = createGalleryCard(response.results);
+    gallery.innerHTML = markup;
+    console.log(response);
+  })
+    .catch(error => {
+      console.log(error);
+      iziToast.error({ message: "Something went wrong" });
+    })
+    .finally(() => loader.classList.add("is-hidden"))
 }
 
 
 pagination.on('afterMove', getPopular);
 
-form.addEventListener('submit', async (e)=>{
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const searchQuery = input.value.trim();
-  if(searchQuery === ''){
+  if (searchQuery === '') {
     iziToast.info({
       message: 'Enter something for search',
     })
@@ -71,22 +78,24 @@ form.addEventListener('submit', async (e)=>{
   api.query = searchQuery;
   pagination.off('afterMove', getPopular);
   pagination.off('afterMove', getByQuery);
-  try{
+  loader.classList.remove("is-hidden");
+  try {
     const data = await api.getPhotosByQuery(page);
-    if(data.results.length === 0){
+    if (data.results.length === 0) {
       iziToast.warning({
-        message:'Sorry, there are no images matching your search query. Please try again!'
+        message: 'Sorry, there are no images matching your search query. Please try again!'
       })
       return;
-    } 
+    }
     pagination.on('afterMove', getByQuery);
     const markup = createGalleryCard(data.results);
     gallery.innerHTML = markup;
 
     pagination.reset(data.total);
 
-  } catch(error){
-  console.log(error);
+  } catch (error) {
+    console.log(error);
   }
+  finally { loader.classList.add("is-hidden") }
 
 })
