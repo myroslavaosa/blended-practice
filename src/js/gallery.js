@@ -12,11 +12,36 @@
 
 import { UnsplashAPI } from './Unsplash-api';
 import { createGalleryCard } from './createGalleryCard';
+import Pagination from 'tui-pagination';
+import 'tui-pagination/dist/tui-pagination.min.css';
+
 const gallery = document.querySelector('.gallery');
 
+const container = document.getElementById('tui-pagination-container');
+const pagination = new Pagination(container, {
+  totalItems: 0,
+  itemsPerPage: 12,
+  visiblePages: 5,
+  page: 1,
+});
+
+const page = pagination.getCurrentPage();
+
 const api = new UnsplashAPI();
-api.getPopulalPhotos(1).then(response => {
+api.getPopularPhotos(page).then(response => {
+  const markup = createGalleryCard(response.results);
+  pagination.reset(response.total);
+  gallery.innerHTML = markup;
+  console.log(response);
+});
+
+pagination.on('afterMove', event => {
+  const currentPage = event.page;
+  api.getPopularPhotos(currentPage).then(response => {
   const markup = createGalleryCard(response.results);
   gallery.innerHTML = markup;
   console.log(response);
 });
+});
+
+
