@@ -2,7 +2,7 @@
 // При завантаженні сторінки має відбуватись запит за популярними зображеннями (ключове слово - popular),
 // а при введенні якогось слова в форму - пошук відбувається по цьому ключовому слову і сторінка перемальовується.
 // Використовуй UnsplashAPI (https://unsplash.com/documentation) для запитів. Створи клас UnsplashAPI для інкапсуляції
-// логіки запитів в одному місті в окремому файлі. 
+// логіки запитів в одному місті в окремому файлі.
 // Створи окремо файл createGalleryCard.js, в якому буде функція, що відповідатиме за створення розмітки.
 // В головному файлі gallery.js має бути вся логіка роботи застосунку.
 // Підключи пагінацію, використовуючи бібліотеку tui-pagination, щоб можна було робити запит за різними сторінками.
@@ -10,9 +10,13 @@
 // Додай лоадер під час завантаження даних з бекенда.
 // Не забудь про відповідні перевірки і сповіщення при роботі з запитами і з формою.
 
-import { UnsplashAPI } from "./Unsplash-api";
+import { UnsplashAPI } from './Unsplash-api';
+import { createGalleryCard } from './createGalleryCard';
+const gallery = document.querySelector('.gallery');
 
 const api = new UnsplashAPI();
-api.getPopulalPhotos(1).then((response)=>{
-    console.log(response);
+api.getPopulalPhotos(1).then(response => {
+  const markup = createGalleryCard(response.results);
+  gallery.innerHTML = markup;
+  console.log(response);
 });
